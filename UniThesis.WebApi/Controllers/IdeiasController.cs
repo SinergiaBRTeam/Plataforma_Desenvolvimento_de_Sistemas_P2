@@ -9,6 +9,7 @@ using UniThesis.Application.Ideas.Queries.BuscarPorAluno;
 using UniThesis.Application.Ideas.Queries.BuscarPorProfessor;
 using UniThesis.Application.Ideas.Queries.BuscarPorStatus;
 using UniThesis.Application.Ideas.Queries.ListarTodas;
+using UniThesis.Application.Ideas.Queries.ObterPorId;
 using UniThesis.Domain.Ideas;
 
 namespace UniThesis.WebApi.Controllers;
@@ -35,7 +36,12 @@ public class IdeiasController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> ObterPorId(Guid id)
     {
-        return NotFound();
+        var result = await _mediator.Send(new ObterIdeiaPorIdQuery(id));
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
     }
 
     [HttpPost("{id:guid}/avaliacoes")]

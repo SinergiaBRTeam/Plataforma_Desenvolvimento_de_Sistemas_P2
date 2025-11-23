@@ -7,6 +7,7 @@ using UniThesis.Application.Projects.Commands.SubmeterDocumento;
 using UniThesis.Application.Projects.DTOs;
 using UniThesis.Application.Projects.Queries.ListarDocumentosProjeto;
 using UniThesis.Application.Projects.Queries.ListarTodos;
+using UniThesis.Application.Projects.Queries.ObterPorId;
 
 namespace UniThesis.WebApi.Controllers;
 
@@ -32,7 +33,12 @@ public class ProjetosController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> ObterPorId(Guid id)
     {
-        return NotFound();
+        var result = await _mediator.Send(new ObterProjetoPorIdQuery(id));
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}/orientador")]
