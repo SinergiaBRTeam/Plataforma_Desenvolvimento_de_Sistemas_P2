@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  unithesis-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: unithesis-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Your_strong_Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "14333:1433"
+    volumes:
+      - unithesis_sql_data:/var/opt/mssql
+    restart: unless-stopped
+
+  unithesis-api:
+    build:
+      context: .
+      dockerfile: UniThesis.WebApi/Dockerfile
+    container_name: unithesis-api
+    depends_on:
+      - unithesis-sql
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=unithesis-sql,1433;Database=UniThesisDb;User Id=sa;Password=Your_strong_Password123!;TrustServerCertificate=True;
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Opcional: configurar JWT por env
+      - Jwt__Key=SUA_CHAVE_BEM_GRANDE_AQUI_123456789
+      - Jwt__Issuer=UniThesis
+      - Jwt__Audience=UniThesis
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  unithesis_sql_data:
