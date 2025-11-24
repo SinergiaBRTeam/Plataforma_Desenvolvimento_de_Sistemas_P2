@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -14,14 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
 
-// MediatR
 services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(SubmeterIdeiaCommand).Assembly));
 
-// Infra
 services.AddInfrastructure(configuration);
 
-// Controllers + JSON (Enums como string)
 services.AddControllers()
     .AddJsonOptions(o =>
     {
@@ -30,7 +28,6 @@ services.AddControllers()
 
 services.AddEndpointsApiExplorer();
 
-// SWAGGER + BOT√O AUTHORIZE
 services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -65,9 +62,8 @@ services.AddSwaggerGen(c =>
     });
 });
 
-// JWT
 var jwtKey = configuration["Jwt:Key"]
-             ?? throw new InvalidOperationException("ConfiguraÁ„o Jwt:Key n„o encontrada.");
+             ?? throw new InvalidOperationException("Configura√ß√£o Jwt:Key n√£o encontrada.");
 
 var key = Encoding.UTF8.GetBytes(jwtKey);
 
@@ -90,20 +86,22 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<UniThesisDbContext>();
+
+    await context.Database.MigrateAsync();
+
     await UniThesisDbSeeder.SeedAsync(context);
 }
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "UniThesis API v1");
-        c.DocExpansion(DocExpansion.None);
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UniThesis API v1");
+    c.DocExpansion(DocExpansion.None);
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
