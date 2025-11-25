@@ -50,9 +50,12 @@ public class UniThesisDbContext : DbContext
             builder.OwnsMany(p => p.Documentos, docs =>
             {
                 docs.WithOwner().HasForeignKey("ProjetoId");
-                docs.Property<Guid>("Id");
-                docs.HasKey("Id");
+                docs.Property(d => d.Id).ValueGeneratedNever();
+                docs.HasKey(d => d.Id);
             });
+
+            builder.Navigation(p => p.Documentos)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         base.OnModelCreating(modelBuilder);
