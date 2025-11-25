@@ -22,4 +22,11 @@ public class UserAccountRepository : IUserAccountRepository
     {
         await _context.UserAccounts.AddAsync(user);
     }
+
+    public async Task<IEnumerable<UserAccount>> BuscarTodosAsync()
+    {
+        return await _context.UserAccounts
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

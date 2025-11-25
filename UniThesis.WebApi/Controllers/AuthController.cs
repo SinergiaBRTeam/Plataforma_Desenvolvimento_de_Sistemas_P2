@@ -1,9 +1,11 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UniThesis.Application.Abstractions;
+using UniThesis.Application.Auth.Queries.ListarUsuarios;
 using UniThesis.Domain.Common;
 using UniThesis.Domain.Users;
+using MediatR;
 
 namespace UniThesis.WebApi.Controllers;
 
@@ -13,11 +15,13 @@ public class AuthController : ControllerBase
 {
     private readonly IUnitOfWork _uow;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IMediator _mediator;
 
-    public AuthController(IUnitOfWork uow, IJwtTokenService jwtTokenService)
+    public AuthController(IUnitOfWork uow, IJwtTokenService jwtTokenService, IMediator mediator)
     {
         _uow = uow;
         _jwtTokenService = jwtTokenService;
+        _mediator = mediator;
     }
 
     public record RegisterRequest(string UserName, string Password, UserRole Role);
@@ -79,4 +83,12 @@ public class AuthController : ControllerBase
             role
         });
     }
+
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
+    {
+        var usuarios = await _mediator.Send(new ListarUsuariosQuery(), cancellationToken);
+        return Ok(usuarios);
+    }
+
 }
