@@ -2,7 +2,7 @@
 
 public interface IIdeiaDePesquisaRepository
 {
-    Task<IdeiaDePesquisa?> ObterPorIdAsync(Guid id);
+    Task<IdeiaDePesquisa?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task AdicionarAsync(IdeiaDePesquisa ideia);
     Task<IEnumerable<IdeiaDePesquisa>> BuscarPorStatusAsync(IdeiaStatusEnum status);
     Task<IEnumerable<IdeiaDePesquisa>> BuscarPorAlunoAsync(Guid alunoId);
