@@ -12,11 +12,14 @@ public class IdeiaDePesquisaRepository : IIdeiaDePesquisaRepository
         _context = context;
     }
 
-    public async Task<IdeiaDePesquisa?> ObterPorIdAsync(Guid id)
+    public async Task<IdeiaDePesquisa?> ObterPorIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Ideias
+            .AsTracking()
             .Include(i => i.Avaliacoes)
-            .FirstOrDefaultAsync(i => i.Id == id);
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
 
     public async Task AdicionarAsync(IdeiaDePesquisa ideia)
