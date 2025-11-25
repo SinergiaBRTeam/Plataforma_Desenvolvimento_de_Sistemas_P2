@@ -37,9 +37,12 @@ public class UniThesisDbContext : DbContext
             builder.OwnsMany(i => i.Avaliacoes, av =>
             {
                 av.WithOwner().HasForeignKey("IdeiaId");
-                av.Property<Guid>("Id");
-                av.HasKey("Id");
+                av.Property(a => a.Id).ValueGeneratedNever();
+                av.HasKey(a => a.Id);
             });
+
+            builder.Navigation(i => i.Avaliacoes)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         modelBuilder.Entity<Projeto>(builder =>
